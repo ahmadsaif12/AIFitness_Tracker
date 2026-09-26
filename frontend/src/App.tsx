@@ -1,11 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import Layout from '../pages/Layout'
-import Dashboard from '../pages/Dashboard'
-import FoodLog from '../pages/FoodLog'
-import ActivityLog from '../pages/ActivityLog'
-import Profile from '../pages/Profile'
-import Login from '../pages/Login'
-import Onboarding from '../pages/Onboarding'
+import Layout from './pages/Layout'
+import Dashboard from './pages/Dashboard'
+import FoodLog from './pages/FoodLog'
+import ActivityLog from './pages/ActivityLog'
+import Profile from './pages/Profile'
+import Login from './pages/Login'
+import Onboarding from './pages/Onboarding'
 
 const App = () => {
   return (

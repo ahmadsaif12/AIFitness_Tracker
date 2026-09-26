@@ -1,5 +1,5 @@
 import { CoffeeIcon, CookieIcon, MoonIcon, SunIcon } from "lucide-react";
-import type { UserData, FoodEntry, ActivityEntry } from "../../types";
+import type { UserData, FoodEntry, ActivityEntry } from "../types";
 export const dummyUser: UserData & { id: string; email: string; username: string } = {
     id: "user_123",
     username: "DemoUser",
