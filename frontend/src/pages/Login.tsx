@@ -7,7 +7,7 @@ import {
 } from "lucide-react"
 import { useEffect, useState, type FormEvent } from "react"
 import { useNavigate } from "react-router-dom"
-import toast from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast"
 import { useAppContext } from "../context/AppContext"
 
 const Login = () => {
@@ -46,6 +46,8 @@ const Login = () => {
   }
 
   return (
+  <>
+  <Toaster />
     <main className="login-page-container">
       <form onSubmit={handleSubmit} className="login-form">
         <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
@@ -156,6 +158,7 @@ const Login = () => {
         </p>
       </form>
     </main>
+  </>
   )
 }
 
