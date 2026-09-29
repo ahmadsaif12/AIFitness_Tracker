@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 body{
-  @apply dark:bg-slate-950;
+  @apply dark:bg-slate-950 dark:text-white;
 }
 /* Shared Page Styles */
 .page-container {
@@ -75,7 +75,7 @@ body{
 }
 
 .onboarding-wrapper {
-  @apply w-full lg:max-w-5xl mx-auto;
+  @apply w-full lg:max-w-[980px] mx-auto;
 }
 
 .onboarding-option-btn {
