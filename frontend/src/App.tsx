@@ -6,8 +6,18 @@ import ActivityLog from './pages/ActivityLog'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
+import { useAppContext } from './context/AppContext'
+import Loading from './components/Loading'
 
 const App = () => {
+  const {user,isUserFetched, onboardingCompleted}= useAppContext()
+  if (!user) {
+    return isUserFetched ? <Login /> : <Loading />
+  }
+  if(!onboardingCompleted){
+    return <Onboarding />
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Layout />}>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type {
@@ -65,7 +65,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     // Fetches the current user using the authentication token.
-    const fetchUser = async (token: string) => {
+    const fetchUser = useCallback(async (token: string) => {
         try {
             const { data } = await mockApi.user.me();
 
@@ -80,7 +80,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         } finally {
             setIsUserFetched(true);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            void fetchUser(token);
+        } else {
+            setIsUserFetched(true);
+        }
+    }, [fetchUser]);
 
     // Logs out the user and redirects to the login page.
     const logout = () => {

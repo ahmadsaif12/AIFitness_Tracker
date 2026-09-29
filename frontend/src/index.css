@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@variant darj (&:where(.dark, .dark *))
+@custom-variant dark (&:where(.dark, .dark *));
 body{
   @apply dark:bg-slate-950;
 }
