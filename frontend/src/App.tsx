@@ -10,36 +10,34 @@ import { useAppContext } from './context/AppContext'
 import Loading from './components/Loading'
 import { Toaster } from 'react-hot-toast'
 
+// Chooses which screen to show based on session loading, login and onboarding state.
 const App = () => {
   const { pathname } = useLocation()
-  const {user,isUserFetched, onboardingCompleted}= useAppContext()
-  if (pathname === '/') {
-    return <Onboarding />
-  }
-  if (!user) {
-    return isUserFetched ? <Login /> : <Loading />
-  }
-  if(!onboardingCompleted){
-    return <Onboarding />
-  }
+  const { user, isUserFetched, onboardingCompleted } = useAppContext()
+
+  if (!isUserFetched) return <Loading />
+
+  // Anonymous visitors: "/" is the onboarding landing page, every other path shows login.
+  if (!user) return pathname === '/' ? <Onboarding /> : <Login />
+  if (!onboardingCompleted) return <Onboarding />
 
   return (
-  <>
-  <Toaster />
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="food" element={<FoodLog />} />
-        <Route path="activity" element={<ActivityLog />} />
-        <Route path="profile" element={<Profile />} />
-      </Route>
+    <>
+      <Toaster />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="food" element={<FoodLog />} />
+          <Route path="activity" element={<ActivityLog />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
 
-      <Route path="/login" element={<Login />} />
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
-  </>
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </>
   )
 }
 
