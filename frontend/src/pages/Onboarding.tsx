@@ -57,7 +57,12 @@ const Onboarding = () => {
 
       await fetchUser(user.token)
       setOnboardingCompleted(true)
-      navigate("/dashboard")
+
+      toast.success("Profile updated successfully")
+
+      setTimeout(() => {
+        navigate("/dashboard")
+      }, 500)
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -336,7 +341,7 @@ const Onboarding = () => {
               </div>
 
               {/* Bottom Buttons */}
-              <div className="flex justify-end gap-3 pt-25  ">
+              <div className="flex justify-end gap-3 pt-25">
                 <button
                   type="button"
                   onClick={() => setStep(2)}
