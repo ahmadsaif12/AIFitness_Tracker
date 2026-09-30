@@ -5,7 +5,7 @@
 **Log meals. Track workouts. Hit your daily goals.**
 
 A clean fitness tracker built with React, TypeScript and Tailwind CSS.
-No backend needed. Everything runs in your browser.
+
 
 </div>
 
