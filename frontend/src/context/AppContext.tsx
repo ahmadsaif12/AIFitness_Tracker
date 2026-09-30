@@ -38,11 +38,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const [allFoodLogs, setAllFoodLogs] = useState<FoodEntry[]>([]);
     const [allActivityLogs, setAllActivityLogs] = useState<ActivityEntry[]>([]);
 
+    // Loads saved food and activity logs into the shared application state.
+    const loadUserLogs = async () => {
+        const [foodResult, activityResult] = await Promise.allSettled([
+            mockApi.foodLogs.list(),
+            mockApi.activityLogs.list(),
+        ]);
+
+        setAllFoodLogs(foodResult.status === "fulfilled" ? foodResult.value.data : []);
+        setAllActivityLogs(activityResult.status === "fulfilled" ? activityResult.value.data : []);
+    };
+
     // Registers a new user and saves the authentication token.
     const signup = async (credentials: Credentials) => {
         const { data } = await mockApi.auth.register(credentials);
 
         setUser({ ...data.user, token: data.jwt });
+        await loadUserLogs();
 
         if (data?.user?.age && data?.user?.weight && data?.user?.goal) {
             setOnboardingCompleted(true);
@@ -56,6 +68,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const { data } = await mockApi.auth.login(credentials);
 
         setUser({ ...data.user, token: data.jwt });
+        await loadUserLogs();
 
         if (data?.user?.age && data?.user?.weight && data?.user?.goal) {
             setOnboardingCompleted(true);
@@ -70,6 +83,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             const { data } = await mockApi.user.me();
 
             setUser({ ...data, token });
+            await loadUserLogs();
 
             if (data?.age && data?.weight && data?.goal) {
                 setOnboardingCompleted(true);

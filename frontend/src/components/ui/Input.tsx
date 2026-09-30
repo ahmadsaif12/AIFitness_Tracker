@@ -12,7 +12,20 @@ interface InputProps {
     max?: string | number;
 }
 
+// Renders a labelled text or number input.
 export default function Input({ label, type = 'text', value, onChange, placeholder = '', className = '', required = false, min, max }: InputProps) {
+    const displayValue = typeof value === 'number' && Number.isNaN(value) ? '' : value;
+
+    // Passes numbers to the parent for number inputs and plain strings otherwise.
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const raw = e.target.value;
+        if (type === 'number') {
+            onChange(raw === '' ? '' : parseFloat(raw));
+        } else {
+            onChange(raw);
+        }
+    };
+
     return (
         <div className={`space-y-2 ${className}`}>
             {label && (
@@ -23,8 +36,8 @@ export default function Input({ label, type = 'text', value, onChange, placehold
             )}
             <input
                 type={type}
-                value={value}
-                onChange={(e) => onChange(type === 'number' ? parseFloat(e.target.value) : e.target.value)}
+                value={displayValue}
+                onChange={handleChange}
                 placeholder={placeholder}
                 min={min}
                 max={max}
