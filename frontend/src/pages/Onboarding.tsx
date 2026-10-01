@@ -12,7 +12,7 @@ import { useAppContext } from "../context/AppContext"
 import type { ProfileFormData } from "../types"
 import Input from "../components/ui/Input"
 import Slider from "../components/ui/Slider"
-import mockApi from "../assets/mockApi"
+import strapiApi from "../services/strapiApi"
 
 const Onboarding = () => {
   const navigate = useNavigate()
@@ -46,7 +46,7 @@ const Onboarding = () => {
     }
 
     try {
-      await mockApi.user.update(user.id, {
+      await strapiApi.user.update(user.id, {
         age: Number(formData.age),
         weight: Number(formData.weight),
         height: Number(formData.height) || null,

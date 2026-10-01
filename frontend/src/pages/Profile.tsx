@@ -2,7 +2,7 @@ import { useState } from "react"
 import { CalendarIcon, LogOutIcon, RulerIcon, ScaleIcon, TargetIcon, UserIcon } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAppContext } from "../context/AppContext"
-import mockApi from "../assets/mockApi"
+import strapiApi from "../services/strapiApi"
 import { goalLabels, goalOptions } from "../assets/assets"
 import Card from "../components/ui/Card"
 import Button from "../components/ui/Button"
@@ -84,7 +84,7 @@ const Profile = () => {
     try {
       setIsSaving(true)
       const updates = { age, weight, height: form.height === "" ? null : height, goal: form.goal }
-      await mockApi.user.update(user.id, updates)
+      await strapiApi.user.update(user.id, updates)
       setUser({ ...user, age, weight, height: updates.height ?? undefined, goal: form.goal })
       toast.success("Profile updated")
       setIsEditing(false)

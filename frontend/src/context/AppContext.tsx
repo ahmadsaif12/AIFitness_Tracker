@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type {
@@ -9,9 +9,29 @@ import type {
     User,
 } from "../types";
 
-import mockApi from "../assets/mockApi";
+import strapiApi from "../services/strapiApi";
 
 // Creates the application context with the initial state.
+const normalizeUser = (user: Partial<User> | null | undefined, token: string): User => {
+    if (!user) return null;
+
+    const id = String(user.id ?? "");
+    const email = String(user.email ?? "");
+    const username = String(user.username ?? "");
+
+    if (!id || !email || !username) {
+        return null;
+    }
+
+    return {
+        ...user,
+        id,
+        email,
+        username,
+        token,
+    } as User;
+};
+
 const AppContext = createContext<AppContextType>({
     user: null,
     setUser: () => {},
@@ -29,7 +49,7 @@ const AppContext = createContext<AppContextType>({
 });
 
 // Provides application data and functions to child components.
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+export const AppProvider = ({ children }: { children: ReactNode }) => {
     const navigate = useNavigate();
 
     const [user, setUser] = useState<User>(null);
@@ -38,79 +58,81 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const [allFoodLogs, setAllFoodLogs] = useState<FoodEntry[]>([]);
     const [allActivityLogs, setAllActivityLogs] = useState<ActivityEntry[]>([]);
 
-    // Loads saved food and activity logs into the shared application state.
-    const loadUserLogs = async () => {
+    const loadUserLogs = useCallback(async () => {
         const [foodResult, activityResult] = await Promise.allSettled([
-            mockApi.foodLogs.list(),
-            mockApi.activityLogs.list(),
+            strapiApi.foodLogs.list(),
+            strapiApi.activityLogs.list(),
         ]);
 
         setAllFoodLogs(foodResult.status === "fulfilled" ? foodResult.value.data : []);
         setAllActivityLogs(activityResult.status === "fulfilled" ? activityResult.value.data : []);
-    };
+    }, []);
 
-    // Registers a new user and saves the authentication token.
     const signup = async (credentials: Credentials) => {
-        const { data } = await mockApi.auth.register(credentials);
+        const { data } = await strapiApi.auth.register(credentials);
 
-        setUser({ ...data.user, token: data.jwt });
+        setUser(normalizeUser(data.user, data.jwt));
+        localStorage.setItem("token", data.jwt);
         await loadUserLogs();
 
-        if (data?.user?.age && data?.user?.weight && data?.user?.goal) {
-            setOnboardingCompleted(true);
-        }
-
-        localStorage.setItem("token", data.jwt);
+        const hasProfile = Boolean(data?.user?.age || data?.user?.weight || data?.user?.goal);
+        setOnboardingCompleted(hasProfile);
     };
 
-    // Logs in the user and saves the authentication token.
     const login = async (credentials: Credentials) => {
-        const { data } = await mockApi.auth.login(credentials);
+        const { data } = await strapiApi.auth.login(credentials);
 
-        setUser({ ...data.user, token: data.jwt });
+        setUser(normalizeUser(data.user, data.jwt));
+        localStorage.setItem("token", data.jwt);
         await loadUserLogs();
 
-        if (data?.user?.age && data?.user?.weight && data?.user?.goal) {
-            setOnboardingCompleted(true);
-        }
-
-        localStorage.setItem("token", data.jwt);
+        const hasProfile = Boolean(data?.user?.age || data?.user?.weight || data?.user?.goal);
+        setOnboardingCompleted(hasProfile);
     };
 
-    // Fetches the current user using the authentication token.
     const fetchUser = useCallback(async (token: string) => {
-        try {
-            const { data } = await mockApi.user.me();
+        if (!token) {
+            setUser(null);
+            setIsUserFetched(true);
+            return;
+        }
 
-            setUser({ ...data, token });
+        try {
+            const { data } = await strapiApi.user.me();
+
+            setUser(normalizeUser(data, token));
             await loadUserLogs();
 
-            if (data?.age && data?.weight && data?.goal) {
-                setOnboardingCompleted(true);
-            }
+            const hasProfile = Boolean(data?.age || data?.weight || data?.goal);
+            setOnboardingCompleted(hasProfile);
         } catch (error) {
             localStorage.removeItem("token");
             setUser(null);
+            setOnboardingCompleted(false);
         } finally {
             setIsUserFetched(true);
         }
-    }, []);
+    }, [loadUserLogs]);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
             void fetchUser(token);
-        } else {
-            setIsUserFetched(true);
+            return;
         }
+
+        setUser(null);
+        setOnboardingCompleted(false);
+        setIsUserFetched(true);
     }, [fetchUser]);
 
-    // Logs out the user and redirects to the login page.
     const logout = () => {
         localStorage.removeItem("token");
         setUser(null);
         setOnboardingCompleted(false);
-        navigate("/login");
+        setAllFoodLogs([]);
+        setAllActivityLogs([]);
+        navigate("/login", { replace: true });
     };
 
     const value: AppContextType = {
@@ -136,5 +158,4 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     );
 };
 
-// Provides access to the application context.
 export const useAppContext = () => useContext(AppContext);

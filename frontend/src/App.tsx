@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './pages/Layout'
 import Dashboard from './pages/Dashboard'
 import FoodLog from './pages/FoodLog'
@@ -10,16 +10,26 @@ import { useAppContext } from './context/AppContext'
 import Loading from './components/Loading'
 import { Toaster } from 'react-hot-toast'
 
-// Chooses which screen to show based on session loading, login and onboarding state.
 const App = () => {
-  const { pathname } = useLocation()
   const { user, isUserFetched, onboardingCompleted } = useAppContext()
 
-  if (!isUserFetched) return <Loading />
+  if (!isUserFetched) {
+    return <Loading />
+  }
 
-  // Anonymous visitors: "/" is the onboarding landing page, every other path shows login.
-  if (!user) return pathname === '/' ? <Onboarding /> : <Login />
-  if (!onboardingCompleted) return <Onboarding />
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/" element={<Onboarding />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    )
+  }
+
+  if (!onboardingCompleted) {
+    return <Onboarding />
+  }
 
   return (
     <>

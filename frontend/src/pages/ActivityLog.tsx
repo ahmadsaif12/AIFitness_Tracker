@@ -2,7 +2,7 @@ import { useState } from "react"
 import { ActivityIcon, PlusIcon, TimerIcon, Trash2Icon, XIcon } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAppContext } from "../context/AppContext"
-import mockApi from "../assets/mockApi"
+import strapiApi from "../services/strapiApi"
 import { quickActivities } from "../assets/assets"
 import Card from "../components/ui/Card"
 import Button from "../components/ui/Button"
@@ -105,7 +105,7 @@ const ActivityLog = () => {
 
     try {
       setIsSaving(true)
-      const { data } = await mockApi.activityLogs.create({
+      const { data } = await strapiApi.activityLogs.create({
         data: { name: form.name.trim(), duration, calories: previewCalories },
       })
       setAllActivityLogs((current) => [...current, data])
@@ -121,7 +121,7 @@ const ActivityLog = () => {
   // Deletes an activity from storage and shared state.
   const handleDelete = async (entry: ActivityEntry) => {
     try {
-      await mockApi.activityLogs.delete(entry.documentId)
+      await strapiApi.activityLogs.delete(entry.documentId)
       setAllActivityLogs((current) => current.filter((item) => item.documentId !== entry.documentId))
       toast.success("Activity removed")
     } catch (error) {
