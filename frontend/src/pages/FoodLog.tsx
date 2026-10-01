@@ -2,7 +2,7 @@ import { useRef, useState } from "react"
 import { ImagePlusIcon, Loader2Icon, PlusIcon, SparklesIcon, Trash2Icon, XIcon } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAppContext } from "../context/AppContext"
-import mockApi from "../assets/mockApi"
+import strapiApi from "../services/strapiApi"
 import {
   mealColors,
   mealIcons,
@@ -124,7 +124,7 @@ const FoodLog = () => {
 
     try {
       setIsSaving(true)
-      const { data } = await mockApi.foodLogs.create({
+      const { data } = await strapiApi.foodLogs.create({
         data: { name: form.name.trim(), calories, mealType: form.mealType },
       })
       setAllFoodLogs((current) => [...current, data])
@@ -141,7 +141,7 @@ const FoodLog = () => {
   const handleDelete = async (entry: FoodEntry) => {
     if (!entry.documentId) return
     try {
-      await mockApi.foodLogs.delete(entry.documentId)
+      await strapiApi.foodLogs.delete(entry.documentId)
       setAllFoodLogs((current) => current.filter((item) => item.documentId !== entry.documentId))
       toast.success("Food removed")
     } catch (error) {
@@ -164,11 +164,11 @@ const FoodLog = () => {
       setIsAnalyzing(true)
       const formData = new window.FormData()
       formData.append("image", imageFile)
-      const { data } = await mockApi.imageAnalysis.analyze(formData)
+      const { data } = await strapiApi.imageAnalysis.analyze(formData)
       setForm((current) => ({
         ...current,
-        name: data.result.name,
-        calories: data.result.calories,
+        name: data.name,
+        calories: data.calories,
       }))
       closeSnap()
       setShowAddForm(true)
